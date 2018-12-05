@@ -1,39 +1,53 @@
-﻿using Identity.B2b.Logic.ApiApp.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
+using Identity.B2b.Logic.Models;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Identity.B2b.Logic.ApiApp.Controllers
 {
     public class InvitationController : ApiController
     {
-        // GET: api/Invitation
+        // GET api/invitation
+        [SwaggerOperation("GetAll")]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
         }
 
-        // GET: api/Invitation/5
-        public string Get(int id)
+        // GET api/invitation/5
+        [SwaggerOperation("GetById")]
+        [SwaggerResponse(HttpStatusCode.OK)]
+        [SwaggerResponse(HttpStatusCode.NotFound)]
+        public string GetById(int id)
         {
             return "value";
         }
 
-        // POST: api/Invitation
-        public void Post([FromBody] Invitation invitation)
+        // POST api/invitation
+        [SwaggerOperation("Create")]
+        [SwaggerResponse(HttpStatusCode.Created)]
+        public async Task PostAsync([FromBody] Invitation invitation)
         {
-            Classes.B2bInvitation.ProcessInvitation(invitation);
+            await Classes.B2bInvitation.ProcessInvitationAsync(invitation);
         }
 
-        // PUT: api/Invitation/5
+        // PUT api/invitation/5
+        [SwaggerOperation("Update")]
+        [SwaggerResponse(HttpStatusCode.OK)]
+        [SwaggerResponse(HttpStatusCode.NotFound)]
         public void Put(int id, [FromBody]string value)
         {
         }
 
-        // DELETE: api/Invitation/5
+        // DELETE api/invitation/5
+        [SwaggerOperation("Delete")]
+        [SwaggerResponse(HttpStatusCode.OK)]
+        [SwaggerResponse(HttpStatusCode.NotFound)]
         public void Delete(int id)
         {
         }

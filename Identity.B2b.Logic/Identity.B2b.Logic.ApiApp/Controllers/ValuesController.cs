@@ -21,7 +21,7 @@ namespace Identity.B2b.Logic.ApiApp.Controllers
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Get(int id)
+        public string GetById(int id)
         {
             return "value";
         }

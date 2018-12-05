@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Identity.B2b.Logic.ApiApp.Models
+namespace Identity.B2b.Logic.Models
 {
-    /// <summary>
-    /// Invitation class.
-    /// </summary>
     public class Invitation
     {
         /// <summary>
@@ -29,5 +27,10 @@ namespace Identity.B2b.Logic.ApiApp.Models
         /// Gets or sets invitation redirect URL
         /// </summary>
         public string InviteRedirectUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets invitation redirect URL
+        /// </summary>
+        public string InviteUrl { get; set; }
     }
 }

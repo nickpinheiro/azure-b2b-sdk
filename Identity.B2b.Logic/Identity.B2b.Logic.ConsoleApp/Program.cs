@@ -1,3 +1,4 @@
+using Identity.B2b.Logic.Mail;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
 using System;
@@ -5,6 +6,8 @@ using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using Identity.B2b.Logic.Models;
 
 namespace Identity.B2b.Logic.ConsoleApp
 {
@@ -58,18 +61,24 @@ namespace Identity.B2b.Logic.ConsoleApp
         /// <param name="args">Optional arguments</param>
         static void Main(string[] args)
         {
-            Invitation invitation = CreateInvitation();
-            SendInvitation(invitation);
+            Models.Invitation invitation = CreateInvitation();
+
+            Task.Run(async () =>
+            {
+                // Do any async anything you need here without worry
+                await SendInvitationAsync(invitation);
+
+            }).GetAwaiter().GetResult();
         }
 
         /// <summary>
         /// Create the invitation object.
         /// </summary>
         /// <returns>Returns the invitation object.</returns>
-        private static Invitation CreateInvitation()
+        private static Models.Invitation CreateInvitation()
         {
             // Set the invitation object.
-            Invitation invitation = new Invitation();
+            Models.Invitation invitation = new Models.Invitation();
             invitation.InvitedUserDisplayName = InvitedUserDisplayName;
             invitation.InvitedUserEmailAddress = InvitedUserEmailAddress;
             invitation.InviteRedirectUrl = "https://www.microsoft.com";
@@ -81,7 +90,7 @@ namespace Identity.B2b.Logic.ConsoleApp
         /// Send the guest user invite request.
         /// </summary>
         /// <param name="invitation">Invitation object.</param>
-        private static void SendInvitation(Invitation invitation)
+        private static async Task SendInvitationAsync(Models.Invitation invitation)
         {
             string accessToken = GetAccessToken();
 
@@ -92,7 +101,13 @@ namespace Identity.B2b.Logic.ConsoleApp
             content.Headers.Add("ContentType", "application/json");
             var postResponse = httpClient.PostAsync(InviteEndPoint, content).Result;
             string serverResponse = postResponse.Content.ReadAsStringAsync().Result;
+
             Console.WriteLine(serverResponse);
+
+            // Send custom invitation 
+            await Mail.Invitation.SendCustomInvitationAsync(invitation);
+
+            Console.ReadLine();
         }
 
         /// <summary>
@@ -138,32 +153,6 @@ namespace Identity.B2b.Logic.ConsoleApp
             }
 
             return accessToken;
-        }
-
-        /// <summary>
-        /// Invitation class.
-        /// </summary>
-        public class Invitation
-        {
-            /// <summary>
-            /// Gets or sets display name.
-            /// </summary>
-            public string InvitedUserDisplayName { get; set; }
-
-            /// <summary>
-            /// Gets or sets display name.
-            /// </summary>
-            public string InvitedUserEmailAddress { get; set; }
-
-            /// <summary>
-            /// Gets or sets a value indicating whether Invitation Manager should send the email to InvitedUser.
-            /// </summary>
-            public bool SendInvitationMessage { get; set; }
-
-            /// <summary>
-            /// Gets or sets invitation redirect URL
-            /// </summary>
-            public string InviteRedirectUrl { get; set; }
         }
     }
 }

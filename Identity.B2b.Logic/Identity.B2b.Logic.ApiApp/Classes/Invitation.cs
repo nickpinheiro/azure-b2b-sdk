@@ -1,11 +1,14 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿using Identity.B2b.Logic.Models;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Identity.B2b.Logic.ApiApp.Models;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace Identity.B2b.Logic.ApiApp.Classes
 {
@@ -57,10 +60,16 @@ namespace Identity.B2b.Logic.ApiApp.Classes
         /// Main method.
         /// </summary>
         /// <param name="args">Optional arguments</param>
-        public static void ProcessInvitation(Invitation invitation)
+        public static async Task ProcessInvitationAsync(Invitation invitation)
         {
             Invitation newInvitation = CreateInvitation(invitation);
-            SendInvitation(newInvitation);
+            InvitationRedemption invitationRedemption = SendInvitation(newInvitation);
+
+            // Capture invitation url
+            invitation.InviteUrl = invitationRedemption.inviteRedeemUrl;
+
+            //Send custom invitation
+            await Mail.Invitation.SendCustomInvitationAsync(invitation);
         }
 
         /// <summary>
@@ -73,7 +82,7 @@ namespace Identity.B2b.Logic.ApiApp.Classes
             Invitation newInvitation = new Invitation();
             newInvitation.InvitedUserDisplayName = InvitedUserDisplayName;
             newInvitation.InvitedUserEmailAddress = InvitedUserEmailAddress;
-            newInvitation.InviteRedirectUrl = "https://www.microsoft.com";
+            newInvitation.InviteRedirectUrl = "https://woodgrove-track.azurewebsites.net";
             newInvitation.SendInvitationMessage = true;
             return newInvitation;
         }
@@ -82,7 +91,7 @@ namespace Identity.B2b.Logic.ApiApp.Classes
         /// Send the guest user invite request.
         /// </summary>
         /// <param name="invitation">Invitation object.</param>
-        private static void SendInvitation(Invitation invitation)
+        private static InvitationRedemption SendInvitation(Invitation invitation)
         {
             string accessToken = GetAccessToken();
 
@@ -93,7 +102,10 @@ namespace Identity.B2b.Logic.ApiApp.Classes
             content.Headers.Add("ContentType", "application/json");
             var postResponse = httpClient.PostAsync(InviteEndPoint, content).Result;
             string serverResponse = postResponse.Content.ReadAsStringAsync().Result;
-            Console.WriteLine(serverResponse);
+
+            InvitationRedemption invitationRedemption = JsonConvert.DeserializeObject<InvitationRedemption>(serverResponse);
+
+            return invitationRedemption;
         }
 
         /// <summary>
