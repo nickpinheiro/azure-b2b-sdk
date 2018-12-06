@@ -61,3 +61,5 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+Identity.B2b.Presentation/Identity.B2b.Presentation.Web/Scripts/ * linguist-vendored
